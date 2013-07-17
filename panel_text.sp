@@ -9,7 +9,7 @@ public Plugin:myinfo =
 {
 	name = "Add Text To Readyup Panel",
 	author = "epilimic",
-	description = "Displays custom text in the readyup panel. spanks for the help canadarox!",
+	description = "Displays custom text in the readyup panel. Spanks for the help CanadaRox!",
 	version = PLUGIN_VERSION,
 	url = "http://buttsecs.org"
 };
