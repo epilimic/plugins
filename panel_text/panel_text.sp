@@ -25,7 +25,7 @@ public OnPluginStart()
 	RegServerCmd("sm_resetstringcount", ResetStringCount_Cmd, "Resets the string count", FCVAR_PLUGIN);
 	RegServerCmd("sm_lockstrings", LockStrings_Cmd, "Locks the strings", FCVAR_PLUGIN);
 	HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
-	sm_readypaneltextdelay = CreateConVar("sm_readypaneltextdelay", "6.0", "Delay before adding the text to the ready-up panel for order control", FCVAR_PLUGIN, true, 0.0, true, 10.0);
+	sm_readypaneltextdelay = CreateConVar("sm_readypaneltextdelay", "4.0", "Delay before adding the text to the ready-up panel for order control", FCVAR_PLUGIN, true, 0.0, true, 10.0);
 }
 
 public Action:LockStrings_Cmd(args)
