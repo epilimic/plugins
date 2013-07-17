@@ -1,5 +1,7 @@
 usage:
 
+*this plugin requires CanadaRox's readyup suite.  
+
 in confogl.cfg (or wherever else you're setting cvars):
 
 sm_readypaneltextdelay #	- sets the delay for the print. ex: 4 seconds for above tank/witch %, 6 for below. replace #.  
