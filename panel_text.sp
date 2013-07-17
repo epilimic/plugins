@@ -20,6 +20,7 @@ new stringCount = 0;
 public OnPluginStart()
 {
 	RegServerCmd("sm_addreadystring", AddReadyString_Cmd, "Sets the string to add to the ready-up panel");
+	RegServerCmd("sm_resetstringcount", ResetStringCount_Cmd, "Resets the string count");
 	HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
 }
 
@@ -30,6 +31,11 @@ public Action:AddReadyString_Cmd(args)
 		GetCmdArg(1, panelText[stringCount], MAX_TEXT_LENGTH);
 		++stringCount;
 	}
+}
+
+public Action:ResetStringCount_Cmd(args)
+{
+	stringCount = 0;
 }
 
 public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
