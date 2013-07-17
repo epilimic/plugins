@@ -1,6 +1,6 @@
-usage:
+*this plugin requires CanadaRox's readyup suite. https://github.com/CanadaRox/l4d2readyup
 
-*this plugin requires CanadaRox's readyup suite.  
+usage:
 
 in confogl.cfg (or wherever else you're setting cvars):
 
