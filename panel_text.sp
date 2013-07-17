@@ -3,6 +3,7 @@
 #include <sourcemod>
 #include <readyup>
 #define PLUGIN_VERSION "1 point 0"
+#define MAX_TEXT_LENGTH 65
 
 public Plugin:myinfo =
 {
@@ -13,7 +14,8 @@ public Plugin:myinfo =
 	url = "http://buttsecs.org"
 };
 
-new String:panelText[65];
+new String:panelText[10][MAX_TEXT_LENGTH];
+new stringCount = 0;
 
 public OnPluginStart()
 {
@@ -23,7 +25,11 @@ public OnPluginStart()
 
 public Action:AddReadyString_Cmd(args)
 {
-	GetCmdArg(1, panelText, sizeof(panelText));
+	if (stringCount < 10)
+	{
+		GetCmdArg(1, panelText[stringCount], MAX_TEXT_LENGTH);
+		++stringCount;
+	}
 }
 
 public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
@@ -33,5 +39,8 @@ public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Action:panelTimer(Handle:timer)
 {
-	AddStringToReadyFooter(panelText);
+	for (new i = 0; i < stringCount; i++)
+	{
+		AddStringToReadyFooter(panelText[i]);
+	}
 }
