@@ -1,5 +1,17 @@
-This is the Smurf-o-Matic 9000, codenamed informant. This plugin will log the playername, steamid, ip address, server name, server ip, and connection time all to a MySQL database.
+sockpuppet informant
+====================
+This is the Smurf-o-Matic 9000, codenamed informant. This plugin will log the playername, steamid, ip address, server name, server ip, and connection time to a MySQL database. 
 
+Website
+=======
+https://github.com/epilimic/plugins/tree/master/informant
+
+Upstream
+========
+* git@github.com:epilimic/plugins.git
+
+Installation and usage
+======================
 Usage if you're connected with our main Smurf-o-Matic Database:
 *  1: Edit informant.cfg with your MySQL database login information.
 *  2: Upload the config to your server's /addons/sourcemod/configs/ folder.
@@ -18,17 +30,15 @@ Usage if you're running this yourself:
 *  5:  ?????
 *  6:  Profit!
 
-```SQL
-CREATE TABLE IF NOT EXISTS `informant` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `servername` text COLLATE utf8_unicode_ci NOT NULL,
-  `serverip` text COLLATE utf8_unicode_ci NOT NULL,
-  `steamid` text COLLATE utf8_unicode_ci NOT NULL,
-  `ipaddress` text COLLATE utf8_unicode_ci NOT NULL,
-  `playername` text COLLATE utf8_unicode_ci NOT NULL,
-  `connecttime` text COLLATE utf8_unicode_ci NOT NULL,
-  `unixtime` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-```
+LICENSE
+=======
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS F
+OR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Valve, the Valve logo, Source, and the Source logo are trademarks and/or registered trademarks of Valve Corporation. All other trademarks are property of their respective owners.
+
