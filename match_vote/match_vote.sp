@@ -1,6 +1,6 @@
 #include <sourcemod>
-#include <builtinvotes>
-//get here: https://forums.alliedmods.net/showthread.php?t=162164
+#include <nativevotes>
+//get here: https://github.com/powerlord/sourcemod-nativevotes
 #include <confogl>
 //get here: http://github.com/epilimic/confoglcompmod
 
@@ -19,7 +19,7 @@ public Plugin:myinfo =
 	name = "Match Vote",
 	author = "vintik, epilimic",
 	description = "!match !rmatch, re-added legacy <!match configname> command",
-	version = "1.3",
+	version = "1.3.1",
 	url = "https://github.com/epilimic"
 }
 
@@ -170,7 +170,7 @@ bool:StartMatchVote(client, const String:cfgname[])
 		PrintToChat(client, "Match voting isn't allowed for spectators.");
 		return false;
 	}
-	if (!IsBuiltinVoteInProgress())//disregard sm_vote_delay
+	if (!NativeVotes_IsVoteInProgress())//disregard sm_vote_delay
 	{
 		new iNumPlayers;
 		decl iPlayers[MaxClients];
@@ -189,7 +189,7 @@ bool:StartMatchVote(client, const String:cfgname[])
 			return false;
 		}
 		new String:sBuffer[64];
-		g_hMatchVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+		g_hMatchVote = NativeVotes_Create(VoteActionHandler,  NativeVotesType_Custom_YesNo, MenuAction_Cancel | MenuAction_VoteEnd | MenuAction_End);
 		if (LGO_IsMatchModeLoaded())
 		{
 			Format(sBuffer, sizeof(sBuffer), "Change config to '%s'?", cfgname);
@@ -198,57 +198,68 @@ bool:StartMatchVote(client, const String:cfgname[])
 		{
 			Format(sBuffer, sizeof(sBuffer), "Load confogl '%s' config?", cfgname);
 		}
-		SetBuiltinVoteArgument(g_hMatchVote, sBuffer);
-		SetBuiltinVoteInitiator(g_hMatchVote, client);
-		SetBuiltinVoteResultCallback(g_hMatchVote, VoteResultHandler);
-		DisplayBuiltinVote(g_hMatchVote, iPlayers, iNumPlayers, 20);
+		NativeVotes_SetTitle(g_hMatchVote, sBuffer);
+		NativeVotes_SetInitiator(g_hMatchVote, client);
+		NativeVotes_SetResultCallback(g_hMatchVote, VoteResultHandler);
+		NativeVotes_Display(g_hMatchVote, iPlayers, iNumPlayers, 20);
 		return true;
 	}
 	PrintToChat(client, "Match vote cannot be started now.");
 	return false;
 }
 
-public VoteActionHandler(Handle:vote, BuiltinVoteAction:action, param1, param2)
+public VoteActionHandler(Handle:vote, MenuAction:action, param1, param2)
 {
 	switch (action)
 	{
-		case BuiltinVoteAction_End:
+		case MenuAction_End:
 		{
 			g_hMatchVote = INVALID_HANDLE;
 			g_hResetMatchVote = INVALID_HANDLE;
-			CloseHandle(vote);
+			NativeVotes_Close(vote);
 		}
-		case BuiltinVoteAction_Cancel:
+		case MenuAction_VoteCancel:
 		{
-			DisplayBuiltinVoteFail(vote, BuiltinVoteFailReason:param1);
+			switch (param1)
+			{
+				case VoteCancel_Generic:
+				{
+					NativeVotes_DisplayFail(vote, NativeVotesFail_Generic);
+				}
+				
+				case VoteCancel_NoVotes:
+				{
+					NativeVotes_DisplayFail(vote, NativeVotesFail_NotEnoughVotes);
+				}
+			}
 		}
 	}
 }
 
-public VoteResultHandler(Handle:vote, num_votes, num_clients, const client_info[][2], num_items, const item_info[][2])
+public VoteResultHandler(Handle:vote, num_votes, num_clients, const client_indexes[], const client_votes[], num_items, const item_indexes[], const item_votes[])
 {
 	for (new i=0; i<num_items; i++)
 	{
-		if (item_info[i][BUILTINVOTEINFO_ITEM_INDEX] == BUILTINVOTES_VOTE_YES)
+		if (item_indexes[i] == NATIVEVOTES_VOTE_YES)
 		{
-			if (item_info[i][BUILTINVOTEINFO_ITEM_VOTES] > (num_clients / 2))
+			if (item_votes[i] > (num_clients / 2))
 			{
 				if (vote == g_hMatchVote)
 				{
-					DisplayBuiltinVotePass(vote, "confogl is loading...");
+					NativeVotes_DisplayPass(vote, "confogl is loading...");
 					ServerCommand("sm_forcematch %s", g_sCfg);
 					return;
 				}
 				else if (vote == g_hResetMatchVote)
 				{
-					DisplayBuiltinVotePass(vote, "confogl is unloading...");
+					NativeVotes_DisplayPass(vote, "confogl is unloading...");
 					ServerCommand("sm_resetmatch");
 					return;
 				}
 			}
 		}
 	}
-	DisplayBuiltinVoteFail(vote, BuiltinVoteFail_Loses);
+	NativeVotes_DisplayFail(vote, NativeVotesFail_Loses);
 }
 
 public Action:MatchReset(client, args)
@@ -271,7 +282,7 @@ StartResetMatchVote(client)
 		PrintToChat(client, "Resetmatch vote cannot be started. No match is running.");
 		return;
 	}
-	if (IsNewBuiltinVoteAllowed())
+	if (NativeVotes_IsNewVoteAllowed())
 	{
 		new iNumPlayers;
 		decl iPlayers[MaxClients];
@@ -288,11 +299,11 @@ StartResetMatchVote(client)
 			PrintToChat(client, "Resetmatch vote cannot be started. Not enough players.");
 			return;
 		}
-		g_hResetMatchVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
-		SetBuiltinVoteArgument(g_hResetMatchVote, "Turn off confogl?");
-		SetBuiltinVoteInitiator(g_hResetMatchVote, client);
-		SetBuiltinVoteResultCallback(g_hResetMatchVote, VoteResultHandler);
-		DisplayBuiltinVote(g_hResetMatchVote, iPlayers, iNumPlayers, 20);
+		g_hResetMatchVote = NativeVotes_Create(VoteActionHandler, NativeVotesType_Custom_YesNo, MenuAction_Cancel | MenuAction_VoteEnd | MenuAction_End);
+		NativeVotes_SetTitle(g_hResetMatchVote, "Turn off confogl?");
+		NativeVotes_SetInitiator(g_hResetMatchVote, client);
+		NativeVotes_SetResultCallback(g_hResetMatchVote, VoteResultHandler);
+		NativeVotes_Display(g_hResetMatchVote, iPlayers, iNumPlayers, 20);
 		FakeClientCommand(client, "Vote Yes");
 		return;
 	}
